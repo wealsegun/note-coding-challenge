@@ -1,0 +1,24 @@
+{
+  "name": "note-coding-challenge",
+  "version": "1.0.0",
+  "description": "You are tasked with building a simple API that allows users to view, create, update, and delete notes. The notes should be stored in a JSON file on the server, and the API should be able to handle multiple users.",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wealsegun/note-coding-challenge.git"
+  },
+  "keywords": [
+    "techt.io",
+    "nodejs",
+    "project"
+  ],
+  "author": "Ogunleye Olawale",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wealsegun/note-coding-challenge/issues"
+  },
+  "homepage": "https://github.com/wealsegun/note-coding-challenge#readme"
+}
