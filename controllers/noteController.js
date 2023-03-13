@@ -1,9 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-const authJson = "../config/auth.json";
-const shortid = require("shortid");
 const path = require("path");
+const authJson = path.resolve(__dirname, "../config/auth.json");
+const shortid = require("shortid");
 const noteJson = path.resolve(__dirname, "../config/note.json");
 const ID = shortid.generate();
 // console.log();
@@ -15,13 +15,31 @@ module.exports.createNote = async (req, res) => {
       const content = req.body.content;
       const user_id = req.body.user_id;
 
+      //   console.log(req.user);
+      let _user = req.user?.id;
+
+      //   console.log(_user)
+
       const note = {
         id: ID,
         title: title,
         content: content,
         user_id: user_id,
         dateCreated: Date.now(),
+        updatedDate: null,
       };
+
+      let userList = JSON.parse(fs.readFileSync(authJson).toString());
+
+      const findUser = userList.find((c) => c.id === note.user_id);
+
+      if (!findUser) {
+        return res.status(400).json({
+          status: 400,
+          message: "User not found",
+          data: null,
+        });
+      }
 
       let existingArray = JSON.parse(fs.readFileSync(noteJson).toString());
       console.log(existingArray);
@@ -37,7 +55,7 @@ module.exports.createNote = async (req, res) => {
           return res.status(200).json({
             status: 200,
             message: "Note saved successfully",
-            data: null,
+            data: note,
           });
         } catch (error) {
           console.log(error);
@@ -114,7 +132,6 @@ module.exports.getNoteById = async (req, res) => {
         dateCreated: new Date(findNote.dateCreated),
       };
 
-
       return res.status(200).json({
         status: 200,
         message: null,
@@ -123,7 +140,7 @@ module.exports.getNoteById = async (req, res) => {
     } else {
       return res.status(404).json({
         status: 404,
-        message: "An error Occured!",
+        message: "Note not found",
         data: null,
       });
     }
@@ -138,12 +155,64 @@ module.exports.getNoteById = async (req, res) => {
 
 module.exports.updateNoteById = async (req, res) => {
   try {
+    if (!req.body.title && !req.body.content) {
+      return res.status(400).json({
+        status: 400,
+        message: "title, content are required fields",
+        data: null,
+      });
+    }
     let noteId = req.params.id;
+    console.log(noteId);
+
+    let existingArray = JSON.parse(fs.readFileSync(noteJson).toString());
+    const findNote = existingArray.find((c) => c.id === noteId);
+
+    console.log(findNote);
+
+    findNote.title = req.body.title;
+    findNote.content = req.body.content;
+    findNote.updatedDate = Date.now();
+
+    console.log(existingArray);
+
+    if (findNote) {
+      console.log(existingArray);
+      if (existingArray) {
+        const arrayTosave = [];
+        // arrayTosave.pus
+        // arrayTosave.push(note);
+        // existingArray = [...existingArray, ...arrayTosave];
+        // console.log(existingArray);
+
+        try {
+          fs.writeFileSync(noteJson, JSON.stringify(existingArray));
+          return res.status(200).json({
+            status: 200,
+            message: "Note saved successfully",
+            data: findNote,
+          });
+        } catch (error) {
+          console.log(error);
+          return res.status(400).json({
+            status: 400,
+            message: "Error occurred",
+            data: error.message,
+          });
+        }
+      }
+    } else {
+      return res.status(404).json({
+        status: 404,
+        message: "Note not found",
+        data: null,
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       status: 500,
       message: "An error Occured!",
-      data: error,
+      data: error.message,
     });
   }
 };
@@ -152,20 +221,20 @@ module.exports.deleteNoteById = async (req, res) => {
   try {
     let noteId = req.params.id;
     let existingArray = JSON.parse(fs.readFileSync(noteJson).toString());
-    console.log(existingArray);
+    
     if (existingArray) {
-      const arrayTosave = [];
-      // arrayTosave.pus
-      arrayTosave.push(note);
-      existingArray = [...existingArray, ...arrayTosave];
-      console.log(existingArray);
+      
+        // const deleteNote = existingArray.filter(c=>c.id === noteId);
+        const findNote = existingArray.findIndex((c) => c.id === noteId);
+        existingArray.splice(findNote, 1);
 
+        console.log(existingArray);
       try {
         fs.writeFileSync(noteJson, JSON.stringify(existingArray));
         return res.status(200).json({
           status: 200,
           message: "Note saved successfully",
-          data: null,
+          data: findNote,
         });
       } catch (error) {
         console.log(error);

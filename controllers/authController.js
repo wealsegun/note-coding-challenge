@@ -4,7 +4,7 @@ const fs = require("fs");
 const validations = require("../utils/validation");
 const path = require("path");
 const authJson = path.resolve(__dirname, "../config/auth.json");
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports.createUser = async (req, res) => {
   try {
@@ -120,8 +120,6 @@ module.exports.login = async (req, res) => {
     if (!valid) {
     }
 
-    const hashPassword = bcrypt.hashSync(password);
-
     let existingArray = JSON.parse(fs.readFileSync(authJson).toString());
     // console.log(existingArray);
 
@@ -136,7 +134,7 @@ module.exports.login = async (req, res) => {
             id: userExist.id,
             email: userExist.email,
             firstName: userExist.firstName,
-            lastName: userExist.lastName
+            lastName: userExist.lastName,
           },
           secret,
           {
@@ -146,7 +144,7 @@ module.exports.login = async (req, res) => {
 
         const _token = {
           token: token,
-        //   refreshToken: token,
+          //   refreshToken: token,
           expiresIn: "24 hours",
         };
 
@@ -201,11 +199,30 @@ module.exports.login = async (req, res) => {
 
 module.exports.logout = async (req, res) => {
   try {
+    const token = req.params.token;
+    console.log(token);
+    if (token) {
+      // Invalidate the token
+      const invalidatedToken = jwt.invalidatedToken(token);
+      console.log(invalidatedToken);
+
+      // Send a response back to the client
+      res.status(200).json({
+        message: "Logout successful",
+        data: null
+      });
+    } else {
+      return res.status(500).json({
+        status: 500,
+        message: "Invalid token!",
+        data: null,
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       status: 500,
       message: "An error Occured!",
-      data: error,
+      data: error.message,
     });
   }
 };
