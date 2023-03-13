@@ -52,8 +52,8 @@ const onError = (error) => {
  */
 const serve = process.env.FRONTEND_URI;
 const onListening = () => {
-  const address = serve.address();
-  const bind = typeof port === "string" ? "pipe" + port : "Port" + port;
+  const address = server.address();
+  const bind = typeof port === "string" ? "pipe" + address : "Port" + port;
   debug("Listening on" + bind);
 };
 
