@@ -44,7 +44,7 @@ module.exports.createNote = async (req, res) => {
           return res.status(400).json({
             status: 400,
             message: "Error occurred",
-            data: error,
+            data: error.message,
           });
         }
       }
@@ -52,7 +52,7 @@ module.exports.createNote = async (req, res) => {
       return res.status(400).json({
         status: 400,
         message: "title, content, and user_id are required fields",
-        data: error,
+        data: null,
       });
     }
   } catch (error) {
@@ -60,7 +60,7 @@ module.exports.createNote = async (req, res) => {
     return res.status(500).json({
       status: 500,
       message: "An error Occured!",
-      data: error,
+      data: error.message,
     });
   }
 };
@@ -101,42 +101,44 @@ module.exports.getNoteById = async (req, res) => {
   try {
     console.log(req.params.id);
     if (req.params.id) {
-      let id = req.param.id;
-      let newArray = [];
+      let noteId = req.params.id;
+
       let existingArray = JSON.parse(fs.readFileSync(noteJson).toString());
+      const findNote = existingArray.find((c) => c.id === noteId);
 
-      newArray = existingArray;
-      console.log(newArray);
+      const note = {
+        id: findNote.id,
+        title: findNote.title,
+        content: findNote.content,
+        user_id: findNote.user_id,
+        dateCreated: new Date(findNote.dateCreated),
+      };
 
-      let findNote = newArray.find((c) => {
-        console.log(c);
-        c.id === id;
-      });
-      console.log(findNote);
 
       return res.status(200).json({
         status: 200,
         message: null,
-        data: findNote,
+        data: note,
       });
     } else {
       return res.status(404).json({
         status: 404,
         message: "An error Occured!",
-        data: error,
+        data: null,
       });
     }
   } catch (error) {
     return res.status(500).json({
       status: 500,
       message: "An error Occured!",
-      data: error,
+      data: error.message,
     });
   }
 };
 
 module.exports.updateNoteById = async (req, res) => {
   try {
+    let noteId = req.params.id;
   } catch (error) {
     return res.status(500).json({
       status: 500,
@@ -148,6 +150,7 @@ module.exports.updateNoteById = async (req, res) => {
 
 module.exports.deleteNoteById = async (req, res) => {
   try {
+    let noteId = req.params.id;
     let existingArray = JSON.parse(fs.readFileSync(noteJson).toString());
     console.log(existingArray);
     if (existingArray) {
